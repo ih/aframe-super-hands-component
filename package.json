@@ -74,7 +74,7 @@
     "sinon": "^1.17.5",
     "sinon-chai": "^2.8.0",
     "snazzy": "^4.0.0",
-    "webpack": "^1.13.0"
+    "webpack": "^1.14.0"
   },
   "semistandard": {
     "ignore": [

@@ -73,10 +73,16 @@
 	      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
 	    },
 	    stretchStartButtons: {
-	      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
+	      default: ['trackpaddown', 'triggerdown', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
 	    },
 	    stretchEndButtons: {
-	      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
+	      default: ['trackpadup', 'triggerup', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
+	    },
+	    resizeStartButtons: {
+	      default: ['gripdown', 'gripclose']
+	    },
+	    resizeEndButtons: {
+	      default: ['gridup', 'gripopen']
 	    },
 	    dragDropStartButtons: {
 	      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
@@ -102,6 +108,8 @@
 	    this.UNGRAB_EVENT = 'grab-end';
 	    this.STRETCH_EVENT = 'stretch-start';
 	    this.UNSTRETCH_EVENT = 'stretch-end';
+	    this.RESIZE_EVENT = 'resize-start';
+	    this.UNRESIZE_EVENT = 'resize-end';
 	    this.DRAGOVER_EVENT = 'dragover-start';
 	    this.UNDRAGOVER_EVENT = 'dragover-end';
 	    this.DRAGDROP_EVENT = 'drag-drop';
@@ -117,6 +125,7 @@
 	    this.dragging = false;
 	    this.carried = null;
 	    this.stretched = null;
+	    this.resized = null;
 	    this.dragged = null;
 
 	    this.unHover = this.unHover.bind(this);
@@ -126,6 +135,8 @@
 	    this.onGrabEndButton = this.onGrabEndButton.bind(this);
 	    this.onStretchStartButton = this.onStretchStartButton.bind(this);
 	    this.onStretchEndButton = this.onStretchEndButton.bind(this);
+	    this.onResizeStartButton = this.onResizeStartButton.bind(this);
+	    this.onResizeEndButton = this.onResizeEndButton.bind(this);
 	    this.onDragDropStartButton = this.onDragDropStartButton.bind(this);
 	    this.onDragDropEndButton = this.onDragDropEndButton.bind(this);
 	    this.system.registerMe(this);
@@ -191,6 +202,18 @@
 	    }
 	    this.stretching = false;
 	  },
+	  onResizeStartButton: function onResizeStartButton(evt) {
+	    this.resizing = true;
+	  },
+	  onResizeEndButton: function onResizeEndButton(evt) {
+	    if (this.resized) {
+	      if (this.otherSuperHand.resized) {
+	        this.resized.emit(this.UNRESIZE_EVENT, { hand: this.el });
+	      }
+	      this.resized = null;
+	    }
+	    this.resizing = false;
+	  },
 	  onDragDropStartButton: function onDragDropStartButton(evt) {
 	    this.dragging = true;
 	  },
@@ -250,17 +273,25 @@
 	        });
 	      }
 	    }
+	    if (this.resizing && !this.resized) {
+	      this.resized = getTarget();
+	      if (this.resized === this.otherSuperHand.resized) {
+	        this.resized.emit(this.RESIZE_EVENT, {
+	          hand: this.otherSuperHand.el, secondHand: this.el
+	        });
+	      }
+	    }
 	    if (this.dragging && !this.dragged) {
 	      /* prefer this.carried so that a drag started after a grab will work
 	         with carried element rather than a currently intersected drop target.
-	         fall back to hitEl in case a drag is initiated independent 
+	         fall back to hitEl in case a drag is initiated independent
 	         of a grab */
 	      this.dragged = this.carried || getTarget();
 	      mEvt = new MouseEvent('dragstart', { relatedTarget: this.el });
 	      this.dragged.dispatchEvent(mEvt);
 	      this.hover(); // refresh hover in case already over a target
 	    }
-	    // keep stack of currently intersected but not interacted entities 
+	    // keep stack of currently intersected but not interacted entities
 	    if (!used && hitElIndex === -1 && hitEl !== this.carried && hitEl !== this.stretched && hitEl !== this.dragged) {
 	      this.hoverEls.push(hitEl);
 	      hitEl.addEventListener('stateremoved', this.unWatch);
@@ -363,6 +394,12 @@
 	    this.data.stretchEndButtons.forEach(function (b) {
 	      _this2.el.addEventListener(b, _this2.onStretchEndButton);
 	    });
+	    this.data.resizeStartButtons.forEach(function (b) {
+	      _this2.el.addEventListener(b, _this2.onResizeStartButton);
+	    });
+	    this.data.resizeEndButtons.forEach(function (b) {
+	      _this2.el.addEventListener(b, _this2.onResizeEndButton);
+	    });
 	    this.data.dragDropStartButtons.forEach(function (b) {
 	      _this2.el.addEventListener(b, _this2.onDragDropStartButton);
 	    });
@@ -391,6 +428,12 @@
 	    });
 	    data.stretchEndButtons.forEach(function (b) {
 	      _this3.el.removeEventListener(b, _this3.onStretchEndButton);
+	    });
+	    data.resizeStartButtons.forEach(function (b) {
+	      _this3.el.removeEventListener(b, _this3.onResizeStartButton);
+	    });
+	    data.resizeEndButtons.forEach(function (b) {
+	      _this3.el.removeEventListener(b, _this3.onResizeEndButton);
 	    });
 	    data.dragDropStartButtons.forEach(function (b) {
 	      _this3.el.removeEventListener(b, _this3.onDragDropStartButton);

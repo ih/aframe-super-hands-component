@@ -19,33 +19,39 @@ AFRAME.registerComponent('super-hands', {
     colliderState: { default: 'collided'},
     colliderEvent: { default: 'hit' },
     grabStartButtons: {
-      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose', 
-                'pointup', 'thumbup', 'pointingstart', 'pistolstart', 
+      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose',
+                'pointup', 'thumbup', 'pointingstart', 'pistolstart',
                 'thumbstickdown']
     },
     grabEndButtons: {
-      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen', 
-                'pointdown', 'thumbdown', 'pointingend', 'pistolend', 
+      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen',
+                'pointdown', 'thumbdown', 'pointingend', 'pistolend',
                 'thumbstickup']
     },
     stretchStartButtons: {
-      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose', 
-                'pointup', 'thumbup', 'pointingstart', 'pistolstart', 
+      default: ['trackpaddown', 'triggerdown',
+                'pointup', 'thumbup', 'pointingstart', 'pistolstart',
                 'thumbstickdown']
     },
     stretchEndButtons: {
-      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen', 
-                'pointdown', 'thumbdown', 'pointingend', 'pistolend', 
+      default: ['trackpadup', 'triggerup',
+                'pointdown', 'thumbdown', 'pointingend', 'pistolend',
                 'thumbstickup']
     },
+    resizeStartButtons: {
+      default: ['gripdown', 'gripclose']
+    },
+    resizeEndButtons: {
+      default: ['gridup', 'gripopen']
+    },
     dragDropStartButtons: {
-      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose', 
-                'pointup', 'thumbup', 'pointingstart', 'pistolstart', 
+      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose',
+                'pointup', 'thumbup', 'pointingstart', 'pistolstart',
                 'thumbstickdown']
     },
     dragDropEndButtons: {
-      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen', 
-                'pointdown', 'thumbdown', 'pointingend', 'pistolend', 
+      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen',
+                'pointdown', 'thumbdown', 'pointingend', 'pistolend',
                 'thumbstickup']
     }
   },
@@ -66,13 +72,15 @@ AFRAME.registerComponent('super-hands', {
     this.UNGRAB_EVENT = 'grab-end';
     this.STRETCH_EVENT = 'stretch-start';
     this.UNSTRETCH_EVENT = 'stretch-end';
+		this.RESIZE_EVENT = 'resize-start';
+		this.UNRESIZE_EVENT = 'resize-end';
     this.DRAGOVER_EVENT = 'dragover-start';
     this.UNDRAGOVER_EVENT = 'dragover-end';
     this.DRAGDROP_EVENT = 'drag-drop';
-    
+
     // links to other systems/components
     this.otherSuperHand = null;
-    
+
     // state tracking
     this.hoverEls = [];
     this.lastHover = null;
@@ -81,8 +89,9 @@ AFRAME.registerComponent('super-hands', {
     this.dragging = false;
     this.carried = null;
     this.stretched = null;
+		this.resized = null;
     this.dragged = null;
-    
+
     this.unHover = this.unHover.bind(this);
     this.unWatch = this.unWatch.bind(this);
     this.onHit = this.onHit.bind(this);
@@ -90,6 +99,8 @@ AFRAME.registerComponent('super-hands', {
     this.onGrabEndButton = this.onGrabEndButton.bind(this);
     this.onStretchStartButton = this.onStretchStartButton.bind(this);
     this.onStretchEndButton = this.onStretchEndButton.bind(this);
+	  this.onResizeStartButton = this.onResizeStartButton.bind(this);
+		this.onResizeEndButton = this.onResizeEndButton.bind(this);
     this.onDragDropStartButton = this.onDragDropStartButton.bind(this);
     this.onDragDropEndButton = this.onDragDropEndButton.bind(this);
     this.system.registerMe(this);
@@ -159,6 +170,18 @@ AFRAME.registerComponent('super-hands', {
     }
     this.stretching = false;
   },
+	onResizeStartButton: function onResizeStartButton(evt) {
+    this.resizing = true;
+  },
+  onResizeEndButton: function onResizeEndButton(evt) {
+    if (this.resized) {
+      if (this.otherSuperHand.resized) {
+        this.resized.emit(this.UNRESIZE_EVENT, { hand: this.el });
+      }
+      this.resized = null;
+    }
+    this.resizing = false;
+  },
   onDragDropStartButton: function (evt) {
     this.dragging = true;
   },
@@ -185,7 +208,7 @@ AFRAME.registerComponent('super-hands', {
   },
   onHit: function(evt) {
     var hitEl = evt.detail.el, used = false, hitElIndex, mEvt;
-    if(!hitEl) { return; } 
+    if(!hitEl) { return; }
     hitElIndex = this.hoverEls.indexOf(hitEl);
     // interactions target the oldest entity in the stack, if present
     var getTarget = () => {
@@ -196,34 +219,42 @@ AFRAME.registerComponent('super-hands', {
       return hitEl;
     };
 
-    if (this.grabbing && !this.carried) { 
+    if (this.grabbing && !this.carried) {
       this.carried = getTarget();
       this.carried.emit(this.GRAB_EVENT, { hand: this.el });
       mEvt = new MouseEvent('mousedown', { relatedTarget: this.el });
       this.carried.dispatchEvent(mEvt);
-    } 
+    }
     if (this.stretching && !this.stretched) {
       this.stretched = getTarget();
       if(this.stretched === this.otherSuperHand.stretched) {
-        this.stretched.emit(this.STRETCH_EVENT, { 
-          hand: this.otherSuperHand.el, secondHand: this.el 
+        this.stretched.emit(this.STRETCH_EVENT, {
+          hand: this.otherSuperHand.el, secondHand: this.el
+        });
+      }
+    }
+    if (this.resizing && !this.resized) {
+      this.resized = getTarget();
+      if (this.resized === this.otherSuperHand.resized) {
+        this.resized.emit(this.RESIZE_EVENT, {
+          hand: this.otherSuperHand.el, secondHand: this.el
         });
       }
     }
     if (this.dragging && !this.dragged) {
       /* prefer this.carried so that a drag started after a grab will work
          with carried element rather than a currently intersected drop target.
-         fall back to hitEl in case a drag is initiated independent 
+         fall back to hitEl in case a drag is initiated independent
          of a grab */
       this.dragged = this.carried || getTarget();
       mEvt = new MouseEvent('dragstart', { relatedTarget: this.el });
       this.dragged.dispatchEvent(mEvt);
       this.hover(); // refresh hover in case already over a target
     }
-    // keep stack of currently intersected but not interacted entities 
-    if (!used && hitElIndex === -1 && hitEl !== this.carried && 
+    // keep stack of currently intersected but not interacted entities
+    if (!used && hitElIndex === -1 && hitEl !== this.carried &&
         hitEl !== this.stretched && hitEl !== this.dragged) {
-      this.hoverEls.push(hitEl); 
+      this.hoverEls.push(hitEl);
       hitEl.addEventListener('stateremoved', this.unWatch);
       if(this.hoverEls.length === 1) { this.hover(); }
     }
@@ -236,7 +267,7 @@ AFRAME.registerComponent('super-hands', {
       hoverEl.removeEventListener('stateremoved', this.unWatch);
       hoverEl.addEventListener('stateremoved', this.unHover);
       if(this.dragging && this.dragged) {
-        hvrevt = { 
+        hvrevt = {
           hand: this.el, hovered: hoverEl, carried: this.dragged
         };
         hoverEl.emit(this.DRAGOVER_EVENT, hvrevt);
@@ -254,7 +285,7 @@ AFRAME.registerComponent('super-hands', {
       }
     } else {
       this.lastHover = null;
-    } 
+    }
   },
   /* called when the current target entity is used by another gesture */
   useHoveredEl: function () {
@@ -281,8 +312,8 @@ AFRAME.registerComponent('super-hands', {
       el.emit(this.UNDRAGOVER_EVENT, evt);
       mEvt = new MouseEvent('dragleave', { relatedTarget: this.dragged });
       el.dispatchEvent(mEvt);
-      if(this.dragged) { 
-        this.dragged.emit(this.UNDRAGOVER_EVENT, evt); 
+      if(this.dragged) {
+        this.dragged.emit(this.UNDRAGOVER_EVENT, evt);
         mEvt = new MouseEvent('dragleave', { relatedTarget: el });
         this.dragged.dispatchEvent(mEvt);
       }
@@ -303,7 +334,7 @@ AFRAME.registerComponent('super-hands', {
   },
   registerListeners: function () {
     this.el.addEventListener(this.data.colliderEvent, this.onHit);
-    
+
     this.data.grabStartButtons.forEach( b => {
       this.el.addEventListener(b, this.onGrabStartButton);
     });
@@ -316,12 +347,18 @@ AFRAME.registerComponent('super-hands', {
     this.data.stretchEndButtons.forEach( b => {
       this.el.addEventListener(b, this.onStretchEndButton);
     });
+    this.data.resizeStartButtons.forEach( b => {
+      this.el.addEventListener(b, this.onResizeStartButton);
+    });
+    this.data.resizeEndButtons.forEach( b => {
+      this.el.addEventListener(b, this.onResizeEndButton);
+    });
     this.data.dragDropStartButtons.forEach( b => {
       this.el.addEventListener(b, this.onDragDropStartButton);
     });
     this.data.dragDropEndButtons.forEach( b => {
       this.el.addEventListener(b, this.onDragDropEndButton);
-    });    
+    });
   },
   unRegisterListeners: function (data) {
     data = data || this.data;
@@ -330,7 +367,7 @@ AFRAME.registerComponent('super-hands', {
       return;
     }
     this.el.removeEventListener(data.colliderEvent, this.onHit);
-    
+
     data.grabStartButtons.forEach( b => {
       this.el.removeEventListener(b, this.onGrabStartButton);
     });
@@ -343,11 +380,17 @@ AFRAME.registerComponent('super-hands', {
     data.stretchEndButtons.forEach( b => {
       this.el.removeEventListener(b, this.onStretchEndButton);
     });
+    data.resizeStartButtons.forEach( b => {
+      this.el.removeEventListener(b, this.onResizeStartButton);
+    });
+    data.resizeEndButtons.forEach( b => {
+      this.el.removeEventListener(b, this.onResizeEndButton);
+    });
     data.dragDropStartButtons.forEach( b => {
       this.el.removeEventListener(b, this.onDragDropStartButton);
     });
     data.dragDropEndButtons.forEach( b => {
       this.el.removeEventListener(b, this.onDragDropEndButton);
-    });    
+    });
   }
 });
