@@ -211,7 +211,8 @@ AFRAME.registerComponent('super-hands', {
     var hitEl = evt.detail.el, used = false, hitElIndex, mEvt;
     if(!hitEl) { return; }
     hitElIndex = this.hoverEls.indexOf(hitEl);
-    // interactions target the oldest entity in the stack, if present
+    // interactions target the newest entity in the stack, if present
+    // this means the most nested element
     var getTarget = () => {
       if(!used) {
         used = true;
@@ -290,7 +291,7 @@ AFRAME.registerComponent('super-hands', {
   },
   /* called when the current target entity is used by another gesture */
   useHoveredEl: function () {
-    var el = this.hoverEls.shift();
+    var el = this.hoverEls.pop();
     this._unHover(el);
     return el;
   },
