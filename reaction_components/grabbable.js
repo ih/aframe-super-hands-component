@@ -21,8 +21,8 @@ AFRAME.registerComponent('grabbable', {
   tick: function() {
     if(this.grabbed && !this.constraint &&
        this.data.usePhysics !== 'only') {
-      // console.log('grabbing');
-      let scalingFactor = this.el.parentEl.getAttribute('scale');
+      // compute based on entire ancestor chain
+      let scalingFactor = this.getScalingFactor(this.el);
 
       if (!scalingFactor) {
         scalingFactor = {x: 1, y: 1, z: 1};
@@ -76,5 +76,22 @@ AFRAME.registerComponent('grabbable', {
     this.grabber = null;
     this.grabbed = false;
     this.el.removeState(this.GRABBED_STATE);
+  },
+  getScalingFactor: function (element) {
+    let scalingFactor = {
+      x: 1,
+      y: 1,
+      z: 1
+    };
+
+    while (element.parentEl.getAttribute('scale')) {
+      let parentScale = element.parentEl.getAttribute('scale');
+      scalingFactor.x *= parentScale.x !== 0 ? parentScale.x : 1;
+      scalingFactor.y *= parentScale.y !== 0 ? parentScale.y : 1;
+      scalingFactor.z *= parentScale.z !== 0 ? parentScale.z : 1;
+      element = element.parentEl;
+    }
+
+    return scalingFactor;
   }
 });
