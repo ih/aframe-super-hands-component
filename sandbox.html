@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <script src="https://rawgit.com/aframevr/aframe/master/dist/aframe-master.min.js"></script>
+
+    <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
+    <script src="aabb-collider.js"></script>
+    <script src="dist/super-hands.js"></script>
+  </head>
+  <body>
+    <a-scene debug>
+      <a-sky radius="50" color="#000" position="0 0 0"></a-sky>
+      <a-box class="collidable" color="green" wireframe="true" scale="1.5 1.5 1.5" position="0 1 -.5">
+
+      </a-box>
+        <a-sphere grabbable class="collidable" radius=".3" color="red" ></a-sphere>
+      <a-entity id="left-hand" super-hands aabb-collider="objects: .collidable" hand-controls="left" grab user-hand-controls="left"  teleport-controls programming-menu></a-entity>
+      <a-entity id="right-hand" super-hands aabb-collider="objects: .collidable,.menu-icon" hand-controls="right" grab user-hand-controls="right" menu-item-select></a-entity>
+    </a-scene>
+  </body>
+</html>

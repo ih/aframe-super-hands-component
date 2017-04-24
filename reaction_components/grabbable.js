@@ -1,5 +1,5 @@
 AFRAME.registerComponent('grabbable', {
-  schema: { 
+  schema: {
     usePhysics: { default: 'ifavailable' },
   },
   init: function () {
@@ -8,7 +8,7 @@ AFRAME.registerComponent('grabbable', {
     this.UNGRAB_EVENT = 'grab-end';
     this.constraint = null;
     this.grabbed = false;
-    
+
     this.start = this.start.bind(this);
     this.end = this.end.bind(this);
   },
@@ -19,17 +19,24 @@ AFRAME.registerComponent('grabbable', {
     }
   },
   tick: function() {
-    if(this.grabbed && !this.constraint && 
+    if(this.grabbed && !this.constraint &&
        this.data.usePhysics !== 'only') {
+      // console.log('grabbing');
+      let scalingFactor = this.el.parentEl.getAttribute('scale');
+
+      if (!scalingFactor) {
+        scalingFactor = {x: 1, y: 1, z: 1};
+      }
       var handPosition = this.grabber.getAttribute('position'),
-        previousPosition = this.previousPosition || handPosition,
+          previousPosition = this.previousPosition || handPosition,
+        // TODO also handle when scaling factor is 0
         deltaPosition = {
-          x: handPosition.x - previousPosition.x,
-          y: handPosition.y - previousPosition.y,
-          z: handPosition.z - previousPosition.z
+          x: (handPosition.x - previousPosition.x) * 1/scalingFactor.x,
+          y: (handPosition.y - previousPosition.y) * 1/scalingFactor.y,
+          z: (handPosition.z - previousPosition.z) * 1/scalingFactor.z
         },
         position = this.el.getAttribute('position');
-      
+
       this.previousPosition = handPosition;
       this.el.setAttribute('position', {
         x: position.x + deltaPosition.x,
@@ -51,7 +58,7 @@ AFRAME.registerComponent('grabbable', {
     this.grabber = evt.detail.hand;
     this.grabbed = true;
     this.el.addState(this.GRABBED_STATE);
-    if(this.data.usePhysics !== 'never' && this.el.body && 
+    if(this.data.usePhysics !== 'never' && this.el.body &&
        this.grabber.body) {
       this.constraint = new window.CANNON
         .LockConstraint(this.el.body, this.grabber.body);

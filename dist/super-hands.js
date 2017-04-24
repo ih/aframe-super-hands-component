@@ -547,12 +547,20 @@
 	  },
 	  tick: function tick() {
 	    if (this.grabbed && !this.constraint && this.data.usePhysics !== 'only') {
+	      // console.log('grabbing');
+	      var scalingFactor = this.el.parentEl.getAttribute('scale');
+
+	      if (!scalingFactor) {
+	        scalingFactor = { x: 1, y: 1, z: 1 };
+	      }
 	      var handPosition = this.grabber.getAttribute('position'),
 	          previousPosition = this.previousPosition || handPosition,
-	          deltaPosition = {
-	        x: handPosition.x - previousPosition.x,
-	        y: handPosition.y - previousPosition.y,
-	        z: handPosition.z - previousPosition.z
+
+	      // TODO also handle when scaling factor is 0
+	      deltaPosition = {
+	        x: (handPosition.x - previousPosition.x) * 1 / scalingFactor.x,
+	        y: (handPosition.y - previousPosition.y) * 1 / scalingFactor.y,
+	        z: (handPosition.z - previousPosition.z) * 1 / scalingFactor.z
 	      },
 	          position = this.el.getAttribute('position');
 
