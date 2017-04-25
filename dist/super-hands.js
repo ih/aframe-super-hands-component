@@ -263,7 +263,7 @@
 
 	    if (this.grabbing && !this.carried) {
 	      this.carried = getTarget();
-	      console.log('carrying ' + this.carried.outerHTML);
+	      //console.log(`carrying ${this.carried.outerHTML}`);
 	      // don't bubble up the event to prevent moving both an element and its parent
 	      this.carried.emit(this.GRAB_EVENT, { hand: this.el }, false);
 	      mEvt = new MouseEvent('mousedown', { relatedTarget: this.el });
@@ -279,6 +279,7 @@
 	    }
 	    if (this.resizing && !this.resized) {
 	      this.resized = getTarget();
+	      console.log('resizing ' + this.resized.outerHTML);
 	      if (this.resized === this.otherSuperHand.resized) {
 	        this.resized.emit(this.RESIZE_EVENT, {
 	          hand: this.otherSuperHand.el, secondHand: this.el
@@ -736,6 +737,7 @@
 	      return;
 	    }
 	    var geometry = this.el.getAttribute('geometry');
+	    console.log('dimensions ' + this.data.geometryDimensions);
 	    var dimensionValues = this.data.geometryDimensions.map(function (dimension) {
 	      return geometry[dimension];
 	    });
@@ -750,6 +752,7 @@
 	    dimensionValues = dimensionValues.map(function (dimensionValue) {
 	      return dimensionValue * deltaStretch;
 	    });
+	    console.log('resing ' + JSON.stringify(dimensionValues));
 	    this.data.geometryDimensions.map(function (dimension, index) {
 	      _this.el.setAttribute('geometry', dimension, dimensionValues[index]);
 	    });
@@ -778,9 +781,11 @@
 	    this.el.addEventListener(this.UNRESIZE_EVENT, this.end);
 	  },
 	  start: function start(evt) {
+
 	    if (this.resized) {
 	      return;
 	    } //already resizeing
+	    console.log('starting resize');
 	    this.resizers.push(evt.detail.hand, evt.detail.secondHand);
 	    this.resized = true;
 	    this.previousStretch = null;

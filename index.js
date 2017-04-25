@@ -223,7 +223,7 @@ AFRAME.registerComponent('super-hands', {
 
     if (this.grabbing && !this.carried) {
       this.carried = getTarget();
-      // console.log(`carrying ${this.carried.outerHTML}`);
+      //console.log(`carrying ${this.carried.outerHTML}`);
       // don't bubble up the event to prevent moving both an element and its parent
       this.carried.emit(this.GRAB_EVENT, { hand: this.el }, false);
       mEvt = new MouseEvent('mousedown', { relatedTarget: this.el });
@@ -239,6 +239,7 @@ AFRAME.registerComponent('super-hands', {
     }
     if (this.resizing && !this.resized) {
       this.resized = getTarget();
+      console.log(`resizing ${this.resized.outerHTML}`);
       if (this.resized === this.otherSuperHand.resized) {
         this.resized.emit(this.RESIZE_EVENT, {
           hand: this.otherSuperHand.el, secondHand: this.el

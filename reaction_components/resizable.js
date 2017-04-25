@@ -19,6 +19,7 @@ AFRAME.registerComponent('resizable', {
   tick: function() {
     if (!this.resized) { return; }
     var geometry = this.el.getAttribute('geometry');
+    console.log(`dimensions ${this.data.geometryDimensions}`);
     var dimensionValues = this.data.geometryDimensions.map((dimension) => {
         return geometry[dimension];
     });
@@ -35,6 +36,7 @@ AFRAME.registerComponent('resizable', {
     dimensionValues = dimensionValues.map((dimensionValue) => {
       return dimensionValue * deltaStretch;
     });
+    console.log(`resing ${JSON.stringify(dimensionValues)}`);
     this.data.geometryDimensions.map((dimension, index) => {
       this.el.setAttribute('geometry', dimension, dimensionValues[index]);
     });
@@ -64,7 +66,9 @@ AFRAME.registerComponent('resizable', {
     this.el.addEventListener(this.UNRESIZE_EVENT, this.end);
   },
   start: function(evt) {
+
     if (this.resized) { return; } //already resizeing
+    console.log('starting resize');
     this.resizers.push(evt.detail.hand, evt.detail.secondHand);
     this.resized = true;
     this.previousStretch = null;
