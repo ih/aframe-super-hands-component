@@ -20,22 +20,22 @@ AFRAME.registerComponent('super-hands', {
     colliderState: { default: 'collided'},
     colliderEvent: { default: 'hit' },
     grabStartButtons: {
-      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose',
-                'pointup', 'thumbup', 'pointingstart', 'pistolstart',
+      default: ['gripdown', 'triggerdown', 'gripclose',
+                'pointup', 'thumbup', 'pistolstart',
                 'thumbstickdown']
     },
     grabEndButtons: {
-      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen',
-                'pointdown', 'thumbdown', 'pointingend', 'pistolend',
+      default: ['gripup', 'triggerup', 'gripopen',
+                'pointdown', 'thumbdown', 'pistolend',
                 'thumbstickup']
     },
     stretchStartButtons: {
-      default: ['trackpaddown', 'triggerdown',
+      default: ['triggerdown',
                 'pointup', 'thumbup', 'pointingstart', 'pistolstart',
                 'thumbstickdown']
     },
     stretchEndButtons: {
-      default: ['trackpadup', 'triggerup',
+      default: ['triggerup',
                 'pointdown', 'thumbdown', 'pointingend', 'pistolend',
                 'thumbstickup']
     },
@@ -46,12 +46,12 @@ AFRAME.registerComponent('super-hands', {
       default: ['gridup', 'gripopen']
     },
     dragDropStartButtons: {
-      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose',
+      default: ['gripdown', 'triggerdown', 'gripclose',
                 'pointup', 'thumbup', 'pointingstart', 'pistolstart',
                 'thumbstickdown']
     },
     dragDropEndButtons: {
-      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen',
+      default: ['gripup', 'triggerup', 'gripopen',
                 'pointdown', 'thumbdown', 'pointingend', 'pistolend',
                 'thumbstickup']
     }

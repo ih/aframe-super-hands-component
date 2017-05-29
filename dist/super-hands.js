@@ -68,16 +68,16 @@
 	    colliderState: { default: 'collided' },
 	    colliderEvent: { default: 'hit' },
 	    grabStartButtons: {
-	      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
+	      default: ['gripdown', 'triggerdown', 'gripclose', 'pointup', 'thumbup', 'pistolstart', 'thumbstickdown']
 	    },
 	    grabEndButtons: {
-	      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
+	      default: ['gripup', 'triggerup', 'gripopen', 'pointdown', 'thumbdown', 'pistolend', 'thumbstickup']
 	    },
 	    stretchStartButtons: {
-	      default: ['trackpaddown', 'triggerdown', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
+	      default: ['triggerdown', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
 	    },
 	    stretchEndButtons: {
-	      default: ['trackpadup', 'triggerup', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
+	      default: ['triggerup', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
 	    },
 	    resizeStartButtons: {
 	      default: ['gripdown', 'gripclose']
@@ -86,10 +86,10 @@
 	      default: ['gridup', 'gripopen']
 	    },
 	    dragDropStartButtons: {
-	      default: ['gripdown', 'trackpaddown', 'triggerdown', 'gripclose', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
+	      default: ['gripdown', 'triggerdown', 'gripclose', 'pointup', 'thumbup', 'pointingstart', 'pistolstart', 'thumbstickdown']
 	    },
 	    dragDropEndButtons: {
-	      default: ['gripup', 'trackpadup', 'triggerup', 'gripopen', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
+	      default: ['gripup', 'triggerup', 'gripopen', 'pointdown', 'thumbdown', 'pointingend', 'pistolend', 'thumbstickup']
 	    }
 	  },
 
